@@ -1,15 +1,18 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.datasets import load_iris
+from sklearn.utils import Bunch
+from typing import cast
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.model_selection import train_test_split
 
 def main():
-    iris = load_iris()
-    
-    # feature / the values associated with a certain feature
-    x = np.array(iris['data'])
+    # Explicitly request the Bunch return so the type-checker selects the correct overload
+    iris = cast(Bunch, load_iris(return_X_y=False))
 
+    # feature / the values associated with a certain feature
+    x = np.array(iris.data)
+    
     # labels / target values / correct answers used for training
     y = np.array(iris['target'])
 
