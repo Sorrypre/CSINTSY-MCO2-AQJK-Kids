@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 def main():
     # Explicitly request the Bunch return so the type-checker selects the correct overload
     iris = cast(Bunch, load_iris(return_X_y=False))
-
+    print(iris)
     # feature / the values associated with a certain feature
     x = np.array(iris.data)
     
