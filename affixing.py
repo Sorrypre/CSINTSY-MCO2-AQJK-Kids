@@ -156,19 +156,35 @@ _fil_suffix_list = sorted(_fil_raw_suffix_list, key=len, reverse=True)
 def _relax_word(word):
     return word.lower()
 
-def _consecutive_consonants(letters):
-    if not letters.strip():
+"""
+    Returns a list of consecutive consonants found within strg in the form 
+    of an integer pair [consecutive_count, from_zero_based_index].
+"""
+def consecutive_consonants(strg):
+    if not strg.strip():
         return 0
+    consecs = []
     cc = 0
+    cpos = 0
+    lpos = 0
     first = False
-    for l in letters:
-        if l in _vowels and first:
-            cc = 0
-        if not l in _vowels:
+    for l in strg:
+        if not l in _vowels and l in _consonants:
             cc += 1
             if not first:
                 first = True
-    return cc
+        if l in _vowels and first:
+            consecs.append([cc, lpos])
+            cc = 0
+            first = False
+        if l in _vowels and not first:
+            lpos = cpos + 1
+        cpos += 1
+        if cpos == len(strg) and cc > 0:
+            consecs.append([cc, lpos])
+            cc = 0
+            first = False
+    return consecs
 
 def _postprefix2(word):
     relaxed = _relax_word(word)
@@ -187,7 +203,7 @@ def _on_prefix(word):
     pp2 = _postprefix2(word)
     if not pp2.strip():
         return 0
-    return 1 if _consecutive_consonants(pp2) < 2 else 0
+    return 1 if consecutive_consonants(pp2)[0][0] < 2 else 0
 
 def _presuffix3(word):
     relaxed = _relax_word(word)
@@ -206,14 +222,14 @@ def _on_suffix(word):
     ps3 = _presuffix3(word)
     if not ps3.strip():
         return 0
-    return 1 if _consecutive_consonants(ps3) < 3 else 0
+    return 1 if consecutive_consonants(ps3) < 3 else 0
 
 def _on_infix(word):
     if len(word) < 4:
         return 0
     relaxed = _relax_word(word)
     first_two = False;
-    if _consecutive_consonants(relaxed[0:2]) == 2:
+    if consecutive_consonants(relaxed[0:2]) == 2:
         if len(relaxed) < 5:
             return 0
         first_two = True
@@ -227,3 +243,7 @@ def _on_infix(word):
 
 def has_fil_affixing(word):
     return _on_prefix(word) + _on_infix(word) + _on_suffix(word)
+
+if __name__ == '__main__':
+    for p in consecutive_consonants("r=ead"):
+        print("%d %d"%(p[0],p[1]))
