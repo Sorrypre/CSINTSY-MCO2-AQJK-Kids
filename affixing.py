@@ -1,10 +1,12 @@
-"""
-Note that these are not sorted lists.
-It may seem sorted but it is really not.
-"""
-
-_vowels = [ 'a', 'e', 'i', 'o', 'u' ]
-_fil_prefix_list = [
+_vowels = [
+    'A', 'E', 'I', 'O', 'U',
+    'a', 'e', 'i', 'o', 'u' 
+]
+_consonants = [
+    'B', 'K', 'D', 'G', 'H', 'L', 'M', 'N', 'P', 'R', 'S', 'T', 'W', 'Y',
+    'b', 'k', 'd', 'g', 'h', 'l', 'm', 'n', 'p', 'r', 's', 't', 'w', 'y'
+]
+_fil_raw_prefix_list = [
     'a', 'a-',
     'ag', 'ag-',
     'apaka', 'apaka-',
@@ -30,7 +32,7 @@ _fil_prefix_list = [
     'ka', 'ka-',
     'kaka', 'kaka-',
     'kasing', 'kasing-',
-    'kawalang', 'kawalang-',
+    'kawalang', 'kawalang-', 'kawalam',
     'ki', 'ki-',
     'kina', 'kina-',
     'kontra', 'kontra-',
@@ -89,6 +91,7 @@ _fil_prefix_list = [
     'pangpa', 'pangpa-', 'pang-pa', 'pang-pa-',
     'panag', 'panag-',
     'pang', 'pang-', 'pam', 'pan',
+    'pina', 'pina-',
     'pinag', 'pinag-',
     'pinaka', 'pinaka-',
     'pinang', 'pinang-',
@@ -106,8 +109,8 @@ _fil_prefix_list = [
     'ting', 'ting-',
     'um', 'um-'
 ]
-_fil_infix_list = [ 'in', 'um' ]
-_fil_suffix_list = [
+_fil_raw_infix_list = [ 'in', 'um' ]
+_fil_raw_suffix_list = [
     'a', 'ha',
     'ado',
     'an', 'han', 'nan',
@@ -121,7 +124,7 @@ _fil_suffix_list = [
     'enyo', 'eño',
     'eriya', 'erya',
     'ero', 'era',
-    'i',
+    'i', 'hi',
     'ibo', 'iba',
     'ilyo', 'illo',
     'ilya', 'illa',
@@ -138,33 +141,89 @@ _fil_suffix_list = [
     'ong', 'ang',
     'oy',
     'sya', 'siya',
-    'syon', 'siyon',
+    'syon', 'siyon'
 ]
+
+"""
+    Sort from longest to shortest affix
+    Para ung mahahabang affixes muna ang itetest na may possible subset na ibang affix
+    e.g. -a vs -ha, -in vs -hin
+"""
+_fil_prefix_list = sorted(_fil_raw_prefix_list, key=len, reverse=True)
+_fil_infix_list = sorted(_fil_raw_infix_list, key=len, reverse=True)
+_fil_suffix_list = sorted(_fil_raw_suffix_list, key=len, reverse=True)
 
 def _relax_word(word):
     return word.lower()
 
-def _on_prefix(word):
+def _consecutive_consonants(letters):
+    if not letters.strip():
+        return 0
+    cc = 0
+    first = False
+    for l in letters:
+        if l in _vowels and first:
+            cc = 0
+        if not l in _vowels:
+            cc += 1
+            if not first:
+                first = True
+    return cc
+
+def _postprefix2(word):
     relaxed = _relax_word(word)
     for pref in _fil_prefix_list:
         if relaxed.startswith(pref):
-            return 1
-    return 0
+            if len(word) > len(pref)+2:
+                return word[len(pref):len(pref)+2]
+            elif len(word) == len(pref):
+                return ' '
+            else:
+                pass
+    # No matches
+    return ''
 
-def _on_suffix(word):
+def _on_prefix(word):
+    pp2 = _postprefix2(word)
+    if not pp2.strip():
+        return 0
+    return 1 if _consecutive_consonants(pp2) < 2 else 0
+
+def _presuffix3(word):
     relaxed = _relax_word(word)
     for suff in _fil_suffix_list:
-        if relaxed.endswith(suff):
+        if word.endswith(suff):
+            if len(word) > len(suff):
+                return word[-len(suff)-3:-len(suff)]
+            elif len(word) == len(suff):
+                return ' '
+            else:
+                return ''
+    # No matches
+    return ''
+
+def _on_suffix(word):
+    ps3 = _presuffix3(word)
+    if not ps3.strip():
+        return 0
+    return 1 if _consecutive_consonants(ps3) < 3 else 0
+
+def _on_infix(word):
+    if len(word) < 4:
+        return 0
+    relaxed = _relax_word(word)
+    first_two = False;
+    if _consecutive_consonants(relaxed[0:2]) == 2:
+        if len(relaxed) < 5:
+            return 0
+        first_two = True
+    # Filipino infix law: C-V -> C-I-V or C-C-V -> C-C-I-V only
+    for inf in _fil_infix_list:
+        L = 2 if first_two else 1
+        R = L + len(inf)
+        if relaxed[L:R] == inf and relaxed[R] in _vowels:
             return 1
     return 0
 
-def _on_infix(word):
-    relaxed = _relax_word(word)
-    for inf in _fil_infix_list:
-        if relaxed[0] in _vowels and relaxed.startswith(inf) \
-           or not relaxed[0] in _vowels and relaxed[1:].startswith(inf):
-            return 1
-    return 0
-    
 def has_fil_affixing(word):
-    return _on_prefix(word) + _on_suffix(word) + _on_infix(word)
+    return _on_prefix(word) + _on_infix(word) + _on_suffix(word)
