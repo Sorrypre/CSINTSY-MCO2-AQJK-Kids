@@ -222,7 +222,7 @@ def _on_suffix(word):
     ps3 = _presuffix3(word)
     if not ps3.strip():
         return 0
-    return 1 if consecutive_consonants(ps3) < 3 else 0
+    return 1 if consecutive_consonants(ps3)[-1][0] < 3 else 0
 
 def _on_infix(word):
     if len(word) < 4:
@@ -244,6 +244,9 @@ def _on_infix(word):
 def has_fil_affixing(word):
     return _on_prefix(word) + _on_infix(word) + _on_suffix(word)
 
+"""
 if __name__ == '__main__':
-    for p in consecutive_consonants("r=ead"):
-        print("%d %d"%(p[0],p[1]))
+    #for p in consecutive_consonants("r=ead"):
+    #    print("%d %d"%(p[0],p[1]))
+    print(has_fil_affixing("pinagkainan"))
+"""
