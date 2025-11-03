@@ -112,7 +112,6 @@ _fil_suffix_list = [
     'ado',
     'an', 'han', 'nan',
     'ana',
-    'ang',
     'ano',
     'ante',
     'asyon', 'asiyon',
@@ -120,22 +119,25 @@ _fil_suffix_list = [
     'e',
     'en',
     'enyo', 'eño',
-    'era',
     'eriya', 'erya',
-    'ero',
+    'ero', 'era',
     'i',
+    'ibo', 'iba',
     'ilyo', 'illo',
-    'in', 'hin',
+    'ilya', 'illa',
+    'in', 'hin', 'nin',
     'ing',
-    'ismo',
-    'ista',
-    'ita',
-    'ito',
+    'is', 'as', 'os', 'us',
+    'ismo', 'isma',
+    'isto', 'ista',
+    'ito', 'ita',
+    'iyo', 'iya',
     'nayan',
-    'nin',
     'ng',
+    'on',
+    'ong', 'ang',
     'oy',
-    's', 'as', 'os', 'us',
+    'sya', 'siya',
     'syon', 'siyon',
 ]
 
@@ -159,12 +161,10 @@ def _on_suffix(word):
 def _on_infix(word):
     relaxed = _relax_word(word)
     for inf in _fil_infix_list:
-        for v in ['a', 'e', 'i', 'o', 'u']:
-            if relaxed.startswith(v) and relaxed.startswith(inf):
-                return 1
-            elif not relaxed.startswith(v) and relaxed[1:].startswith(inf):
-                return 1
+        if relaxed[0] in _vowels and relaxed.startswith(inf) \
+           or not relaxed[0] in _vowels and relaxed[1:].startswith(inf):
+            return 1
     return 0
     
-def affixing(word):
+def has_fil_affixing(word):
     return _on_prefix(word) + _on_suffix(word) + _on_infix(word)
