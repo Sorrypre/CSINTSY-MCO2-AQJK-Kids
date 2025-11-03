@@ -162,7 +162,7 @@ def _relax_word(word):
 """
 def consecutive_consonants(strg):
     if not strg.strip():
-        return 0
+        return []
     consecs = []
     cc = 0
     cpos = 0
