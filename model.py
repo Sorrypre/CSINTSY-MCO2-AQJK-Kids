@@ -12,11 +12,18 @@ from  sklearn.metrics import accuracy_score, precision_score, recall_score, conf
 def main():
     # Dataframe derived from the final_annotations.csv
     unprocessed_data = pd.read_csv("final_annotations.csv")
-    print(unprocessed_data)
-    unprocessed_data.info()
-    print(unprocessed_data.isnull().sum())
+    # Data Cleaning irrelevant columns
     essential_data = drop_irrelevant_columns(unprocessed_data)
-    print(essential_data)
+    # First feature
+    essential_data["isFirstLetterCapital"] = essential_data["word"].str[0].str.isupper().astype(int)
+    # Second Feature
+    essential_data["numVowels"] = essential_data["word"].str.count(r'[aeiou]')
+    # Third Feature
+    essential_data["wordLength"] = essential_data["word"].str.len()
+    # Fourth Feature
+    essential_data["numNonPureAbakada"] = essential_data["word"].str.count(r'[cfjqvxz]')
+    # Fifth Feature
+    # essential_data["previousWordTagPrediction"] = 
 
 
 # Data cleaning: Removing irrelevant columns for feature matrix
