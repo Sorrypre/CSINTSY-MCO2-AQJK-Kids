@@ -49,7 +49,7 @@ def main():
     unprocessed_data['filAffixSum'] = unprocessed_data.apply(feature_fil_affix_sum, axis=1)
     
     # Test run
-    print(unprocessed_data[['word', 'isFirstLetterCapital', 'numVowels', 'wordLength', 'numNonPureAbakada', 'filAffixingSum']].to_string())
+    print(unprocessed_data[['word', 'isFirstLetterCapital', 'numVowels', 'wordLength', 'numNonPureAbakada', 'filAffixSum']].to_string())
 
 # Data cleaning: Removing irrelevant columns for feature matrix
 # Droped is_ne and is correct spelling for now kasi sabi ni sir pwede gamitin although not necessary 
