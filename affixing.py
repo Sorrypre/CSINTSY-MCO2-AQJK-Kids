@@ -206,7 +206,8 @@ def _on_prefix(word):
     pp2 = _postprefix2(word)
     if not pp2.strip():
         return 0
-    return 1 if consecutive_consonants(pp2)[0][0] < 2 else 0
+    cc = consecutive_consonants(pp2)
+    return 1 if len(cc) and cc[0][0] < 2 else 0
 
 def _presuffix3(word):
     relaxed = _relax_word(word)
@@ -225,14 +226,18 @@ def _on_suffix(word):
     ps3 = _presuffix3(word)
     if not ps3.strip():
         return 0
-    return 1 if consecutive_consonants(ps3)[-1][0] < 3 else 0
+    cc = consecutive_consonants(ps3)
+    return 1 if len(cc) and cc[-1][0] < 3 else 0
 
 def _on_infix(word):
     if len(word) < 4:
         return 0
     relaxed = _relax_word(word)
     first_two = False;
-    if consecutive_consonants(relaxed[0:2])[0][0] == 2:
+    cc = consecutive_consonants(relaxed[0:2])
+    if not len(cc):
+        return 0
+    if cc[0][0] == 2:
         if len(relaxed) < 5:
             return 0
         first_two = True
@@ -248,6 +253,7 @@ def has_fil_affixing(word):
     return _on_prefix(word) + _on_infix(word) + _on_suffix(word)
 
 """
+# Test run
 if __name__ == '__main__':
     #for p in consecutive_consonants("r=ead"):
     #    print("%d %d"%(p[0],p[1]))
