@@ -229,7 +229,7 @@ def _on_infix(word):
         return 0
     relaxed = _relax_word(word)
     first_two = False;
-    if consecutive_consonants(relaxed[0:2]) == 2:
+    if consecutive_consonants(relaxed[0:2])[0][0] == 2:
         if len(relaxed) < 5:
             return 0
         first_two = True
