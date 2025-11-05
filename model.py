@@ -3,13 +3,13 @@ import pandas as pd
 # for array numerical computing used for multi-dimensional arrays
 import numpy as np
 
+# Regular expressions
+import re
+
 from sklearn.model_selection import train_test_split
 # from sklearn.preprocessing import <insert preprocessing module for Multinomial Naive Bayes>
 from sklearn.naive_bayes import MultinomialNB
 from  sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
-
-# Pang-interpret ng .csv
-import unpack_csv as unp
 
 # For affixing feature
 import affixing as afx
@@ -20,8 +20,7 @@ def feature_is_capitalized(r):
 
 def feature_vowel_count(r):
     subj = r['word']
-    vowels = ['a','e','i','o','u']
-    return 0 if pd.isna(subj) or not len(subj) else sum(1 for char in subj.lower() if char in vowels)
+    return 0 if pd.isna(subj) or not len(subj) else len(re.findall(r'[aeiou]', subj))
     
 def feature_word_length(r):
     subj = r['word']
@@ -29,8 +28,7 @@ def feature_word_length(r):
 
 def feature_non_pure_abakada_count(r):
     subj = r['word']
-    nonAbakadaLetters = ['c','f','j','q','v','x','z']
-    return 0 if pd.isna(subj) or not len(subj) else sum(1 for char in subj.lower() if char in nonAbakadaLetters)
+    return 0 if pd.isna(subj) or not len(subj) else len(re.findall(r'[cfjqvxz]', subj))
     
 def feature_fil_affix_sum(r):
     subj = r['word']
