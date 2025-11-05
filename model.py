@@ -16,11 +16,12 @@ import affixing as afx
 
 def feature_is_capitalized(r):
     subj = r['word']
-    return False if pd.isna(subj) or not len(subj) else subj[0].isupper()
+    return 0 if pd.isna(subj) or not len(subj) or not subj[0].isupper() else 1
 
 def feature_vowel_count(r):
     subj = r['word']
-    return 0 if pd.isna(subj) or not len(subj) else subj.count(r'[aeiou]')
+    vowels = ['a','e','i','o','u']
+    return 0 if pd.isna(subj) or not len(subj) else sum(1 for char in subj.lower() if char in vowels)
     
 def feature_word_length(r):
     subj = r['word']
@@ -28,7 +29,8 @@ def feature_word_length(r):
 
 def feature_non_pure_abakada_count(r):
     subj = r['word']
-    return 0 if pd.isna(subj) or not len(subj) else subj.count(r'[cfjqvxz]')
+    nonAbakadaLetters = ['c','f','j','q','v','x','z']
+    return 0 if pd.isna(subj) or not len(subj) else sum(1 for char in subj.lower() if char in nonAbakadaLetters)
     
 def feature_fil_affix_sum(r):
     subj = r['word']
@@ -36,7 +38,7 @@ def feature_fil_affix_sum(r):
 
 def main():
     # Interpret
-    unprocessed_data = unp.csv_makepd('final_annotations.csv')
+    unprocessed_data = pd.read_csv('final_annotations.csv', dtype={'word': str}, keep_default_na=False, na_values=[], na_filter=False)
     # Feature 1
     unprocessed_data['isFirstLetterCapital'] = unprocessed_data.apply(feature_is_capitalized, axis=1)
     # Feature 2
@@ -50,6 +52,12 @@ def main():
     
     # Test run
     print(unprocessed_data[['word', 'isFirstLetterCapital', 'numVowels', 'wordLength', 'numNonPureAbakada', 'filAffixSum']].to_string())
+    # To check na values (naalala ko na yung code)
+    na_rows = unprocessed_data['word'].isna()
+    print(unprocessed_data[na_rows])
+    print("Rows with empty word: ", na_rows.sum())
+
+
 
 # Data cleaning: Removing irrelevant columns for feature matrix
 # Droped is_ne and is correct spelling for now kasi sabi ni sir pwede gamitin although not necessary 
