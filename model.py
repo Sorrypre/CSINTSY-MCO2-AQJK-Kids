@@ -5,7 +5,12 @@ import numpy as np
 
 from sklearn.model_selection import train_test_split
 # from sklearn.preprocessing import <insert preprocessing module for Multinomial Naive Bayes>
-from sklearn.naive_bayes import MultinomialNB
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import StandardScaler
+
+from sklearn.compose import ColumnTransformer
+from sklearn.linear_model import LogisticRegression
 from  sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
 
 # Pang-interpret ng .csv
@@ -57,7 +62,33 @@ def main():
     print(unprocessed_data[na_rows])
     print("Rows with empty word: ", na_rows.sum())
 
+    X = unprocessed_data[['word', 'isFirstLetterCapital', 'numVowels', 'wordLength', 'numNonPureAbakada', 'filAffixSum']]
+    y = unprocessed_data['label']
 
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3,random_state=69,stratify=y)
+
+    # column transfomer to for the model to better understand the features and drop irrelevant columns
+    
+    # character N-grams for the word column (2-4)
+    word_transfomer = TfidfVectorizer(analyzer='char', ngram_range=(2,4))
+    # numerical features scaling for good practice raw
+    numerical_transfomer = Pipeline(steps=[('scaler', StandardScaler())])
+    preprocessor = ColumnTransformer(transformers=[('nGramText', word_transfomer, 'word'), 
+                                                    ('scaledNum', numerical_transfomer, ['isFirstLetterCapital', 'numVowels', 'wordLength', 'numNonPureAbakada', 'filAffixSum'])], remainder='drop')
+    
+    final_model = Pipeline(steps=[('preprocessor', preprocessor), ('classifer', LogisticRegression(solver='sag', random_state=69))])
+
+    # Training the model
+    final_model.fit(X_train, y_train)
+
+    # Evaluation of the model 
+    y_predict = final_model.predict(X_test)
+    print(f"Prection target test values: {y_predict}")
+    print(f"Actual target test values:   {y_test}")
+    acc_score = accuracy_score(y_test, y_predict)
+    print(f"Model Accuracy on Test Set: {acc_score:.4f}")
+
+    
 
 # Data cleaning: Removing irrelevant columns for feature matrix
 # Droped is_ne and is correct spelling for now kasi sabi ni sir pwede gamitin although not necessary 
