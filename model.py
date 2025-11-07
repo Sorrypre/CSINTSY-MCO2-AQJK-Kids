@@ -14,7 +14,7 @@ from sklearn.preprocessing import StandardScaler
 
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LogisticRegression
-from  sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
+from  sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix, classification_report
 
 # For affixing feature
 import affixing as afx
@@ -54,16 +54,16 @@ def main():
     unprocessed_data['filAffixSum'] = unprocessed_data.apply(feature_fil_affix_sum, axis=1)
     
     # Test run
-    print(unprocessed_data[['word', 'isFirstLetterCapital', 'numVowels', 'wordLength', 'numNonPureAbakada', 'filAffixSum']].to_string())
+    #print(unprocessed_data[['word', 'isFirstLetterCapital', 'numVowels', 'wordLength', 'numNonPureAbakada', 'filAffixSum']].to_string())
     # To check na values (naalala ko na yung code)
     na_rows = unprocessed_data['word'].isna()
-    print(unprocessed_data[na_rows])
-    print("Rows with empty word: ", na_rows.sum())
+    #print(unprocessed_data[na_rows])
+    #print("Rows with empty word: ", na_rows.sum())
 
     X = unprocessed_data[['word', 'isFirstLetterCapital', 'numVowels', 'wordLength', 'numNonPureAbakada', 'filAffixSum']]
     y = unprocessed_data['label']
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3,random_state=69,stratify=y)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10, stratify=y)
 
     # column transfomer to for the model to better understand the features and drop irrelevant columns
     
@@ -74,17 +74,20 @@ def main():
     preprocessor = ColumnTransformer(transformers=[('nGramText', word_transfomer, 'word'), 
                                                     ('scaledNum', numerical_transfomer, ['isFirstLetterCapital', 'numVowels', 'wordLength', 'numNonPureAbakada', 'filAffixSum'])], remainder='drop')
     
-    final_model = Pipeline(steps=[('preprocessor', preprocessor), ('classifer', LogisticRegression(solver='sag', random_state=69))])
+    final_model = Pipeline(steps=[('preprocessor', preprocessor), ('classifer', LogisticRegression(solver='lbfgs', max_iter=2**15-1))]) # random_state=69
 
     # Training the model
     final_model.fit(X_train, y_train)
 
-    # Evaluation of the model 
+    # Evaluation of the model
+    print(X_test)
     y_predict = final_model.predict(X_test)
-    print(f"Prection target test values: {y_predict}")
+    print(f"Prediction target test values: {y_predict}")
     print(f"Actual target test values:   {y_test}")
     acc_score = accuracy_score(y_test, y_predict)
     print(f"Model Accuracy on Test Set: {acc_score:.4f}")
+    print(classification_report(y_test, y_predict))
+    #print(confusion_matrix(y_test, y_predict))
 
     
 
