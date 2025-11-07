@@ -246,5 +246,8 @@ def on_infix(word):
 def has_fil_affixing(word):
     return on_prefix(word) + on_suffix(word) + on_infix(word)
 
+"""
+# Test run
 if __name__ == '__main__':
     print(has_fil_affixing('kulog'))
+"""

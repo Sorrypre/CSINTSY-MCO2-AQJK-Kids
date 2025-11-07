@@ -19,6 +19,22 @@ from  sklearn.metrics import accuracy_score, precision_score, recall_score, conf
 # For affixing feature
 import affixing as afx
 
+# For dynamic assignment of features in word_parser
+feature_columns = ['word', 'isFirstLetterCapital', 'numVowels', 'wordLength', 'numNonPureAbakada', 'filAffixSum']
+def get_feature(n):
+    if n == 1:
+        return feature_is_capitalized
+    elif n == 2:
+        return feature_vowel_count
+    elif n == 3:
+        return feature_word_length
+    elif n == 4:
+        return feature_non_pure_abakada_count
+    elif n == 5:
+        return feature_fil_affix_sum
+    else:
+        raise Exception('feature out of bounds')
+
 def feature_is_capitalized(r):
     subj = r['word']
     return 0 if pd.isna(subj) or not len(subj) or not subj[0].isupper() else 1
