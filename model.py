@@ -19,21 +19,10 @@ from  sklearn.metrics import accuracy_score, precision_score, recall_score, conf
 # For affixing feature
 import affixing as afx
 
+import word_parser as wpar
+
 # For dynamic assignment of features in word_parser
 feature_columns = ['word', 'isFirstLetterCapital', 'numVowels', 'wordLength', 'numNonPureAbakada', 'filAffixSum']
-def get_feature(n):
-    if n == 1:
-        return feature_is_capitalized
-    elif n == 2:
-        return feature_vowel_count
-    elif n == 3:
-        return feature_word_length
-    elif n == 4:
-        return feature_non_pure_abakada_count
-    elif n == 5:
-        return feature_fil_affix_sum
-    else:
-        raise Exception('feature out of bounds')
 
 def feature_is_capitalized(r):
     subj = r['word']
@@ -55,19 +44,25 @@ def feature_fil_affix_sum(r):
     subj = r['word']
     return 0 if pd.isna(subj) or not len(subj) else afx.has_fil_affixing(subj)
 
+def get_feature(n):
+    if n == 1:
+        return feature_is_capitalized
+    elif n == 2:
+        return feature_vowel_count
+    elif n == 3:
+        return feature_word_length
+    elif n == 4:
+        return feature_non_pure_abakada_count
+    elif n == 5:
+        return feature_fil_affix_sum
+    else:
+        raise Exception('feature out of bounds')
+
 def main():
     # Interpret
     unprocessed_data = pd.read_csv('final_annotations.csv', dtype={'word': str}, keep_default_na=False, na_values=[], na_filter=False)
-    # Feature 1
-    unprocessed_data['isFirstLetterCapital'] = unprocessed_data.apply(feature_is_capitalized, axis=1)
-    # Feature 2
-    unprocessed_data['numVowels'] = unprocessed_data.apply(feature_vowel_count, axis=1)
-    # Feature 3
-    unprocessed_data['wordLength'] = unprocessed_data.apply(feature_word_length, axis=1)
-    # Feature 4
-    unprocessed_data['numNonPureAbakada'] = unprocessed_data.apply(feature_non_pure_abakada_count, axis=1)
-    # Feature 5
-    unprocessed_data['filAffixSum'] = unprocessed_data.apply(feature_fil_affix_sum, axis=1)
+    for f in range(1, len(feature_columns)):
+        unprocessed_data[feature_columns[f]] = unprocessed_data.apply(get_feature(f), axis=1)
     
     # Test run
     #print(unprocessed_data[['word', 'isFirstLetterCapital', 'numVowels', 'wordLength', 'numNonPureAbakada', 'filAffixSum']].to_string())
@@ -76,12 +71,12 @@ def main():
     #print(unprocessed_data[na_rows])
     #print("Rows with empty word: ", na_rows.sum())
 
-    X = unprocessed_data[['word', 'isFirstLetterCapital', 'numVowels', 'wordLength', 'numNonPureAbakada', 'filAffixSum']]
+    X = unprocessed_data[feature_columns]
     y = unprocessed_data['label']
-
+    
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, stratify=y)
     X_valtrain, X_valtest, y_valtrain, y_valtest = train_test_split(X_test, y_test, test_size=0.50, stratify=y_test)
-
+    
     # column transfomer to for the model to better understand the features and drop irrelevant columns
     
     # character N-grams for the word column (2-4)
@@ -97,7 +92,7 @@ def main():
     final_model.fit(X_valtrain, y_valtrain)
 
     # Evaluation of the model
-    print(X_valtest)
+    #print(X_valtest)
     y_predict = final_model.predict(X_valtest)
     print(f"Prediction target test values: {y_predict}")
     print(f"Actual target test values:   {y_valtest}")
@@ -105,6 +100,11 @@ def main():
     print(f"Model Accuracy on Test Set: {acc_score:.4f}")
     print(classification_report(y_valtest, y_predict))
     #print(confusion_matrix(y_test, y_predict))
+    
+    # Custom prediction
+    prompt = ['testing', 'natin', 'how', 'effective', 'ung', 'model', 'na', 'to']
+    print(f"Prompt: {prompt}")
+    print(f"Custom prediction results: {final_model.predict(wpar.pdfy(prompt))}")
 
     
 
