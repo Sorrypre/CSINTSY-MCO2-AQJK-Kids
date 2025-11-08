@@ -172,21 +172,23 @@ def main():
     final_model = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', LogisticRegression(solver='saga', max_iter=2**15-1))]) # random_state=69
 
     # Training the model
-    final_model.fit(X_validation, y_validation)
+    final_model.fit(X_train, y_train)
 
     # Evaluation of the model
     #print(X_valtest)
-    y_predict = final_model.predict(X_validation)
+    y_predict = final_model.predict(X_valtrain)
     print(f"Prediction target test values: {y_predict}")
-    print(f"Actual target test values:   {y_validation}")
-    acc_score = accuracy_score(y_validation, y_predict)
+    print(f"Actual target test values:   {y_valtrain}")
+    acc_score = accuracy_score(y_valtrain, y_predict)
     print(f"Model Accuracy on Test Set: {acc_score:.4f}")
-    print(classification_report(y_validation, y_predict))
+    print(classification_report(y_valtrain, y_predict))
     #print(confusion_matrix(y_test, y_predict))
     
     # Custom prediction
     #prompt = ['marangya', 'ang', 'iyong', 'ugali', ',', 'kaya', '\'', 't', 'ikaw', 'ay', 'paparusahan', 'ng', 'Diyos', '-', 'Amang', 'makapangyarihan', '.']
-    prompt = ['She\'s', 'not', 'that', 'good', 'at', 'all', ',', 'sa', 'totoo', 'lang', 'eh', '.']
+    #prompt = ['She\'s', 'not', 'that', 'good', 'at', 'all', ',', 'sa', 'totoo', 'lang', 'eh', '.']
+    #prompt = ['Inis', 'sayo', 'kosah']
+    prompt = ['Kuhang-kuha', 'mo', 'inis', 'ko', 'yah', 'observe', 'safety', 'ka', 'lang', 'boi', 'baka', 'headshot', 'en', 'kita']
     print(f"Prompt: {prompt}")
     print(f"Custom prediction results: {final_model.predict(wpar.pdfy(prompt))}")
 
