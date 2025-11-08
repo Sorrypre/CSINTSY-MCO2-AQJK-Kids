@@ -119,7 +119,7 @@ _fil_raw_suffix_list = [
     'aryo', 'ariyo',
     'asyon', 'asiyon',
     'ay',
-    'en',
+    #'en',
     'enyo', 'eño',
     'eriya', 'erya',
     'ero', 'era',
