@@ -79,7 +79,8 @@ def main():
     X = unprocessed_data[['word', 'isFirstLetterCapital', 'numVowels', 'wordLength', 'numNonPureAbakada', 'filAffixSum']]
     y = unprocessed_data['label']
 
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.10, stratify=y)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, stratify=y)
+    X_valtrain, X_valtest, y_valtrain, y_valtest = train_test_split(X_test, y_test, test_size=0.50, stratify=y_test)
 
     # column transfomer to for the model to better understand the features and drop irrelevant columns
     
@@ -93,16 +94,16 @@ def main():
     final_model = Pipeline(steps=[('preprocessor', preprocessor), ('classifer', LogisticRegression(solver='lbfgs', max_iter=2**15-1))]) # random_state=69
 
     # Training the model
-    final_model.fit(X_train, y_train)
+    final_model.fit(X_valtrain, y_valtrain)
 
     # Evaluation of the model
-    print(X_test)
-    y_predict = final_model.predict(X_test)
+    print(X_valtest)
+    y_predict = final_model.predict(X_valtest)
     print(f"Prediction target test values: {y_predict}")
-    print(f"Actual target test values:   {y_test}")
-    acc_score = accuracy_score(y_test, y_predict)
+    print(f"Actual target test values:   {y_valtest}")
+    acc_score = accuracy_score(y_valtest, y_predict)
     print(f"Model Accuracy on Test Set: {acc_score:.4f}")
-    print(classification_report(y_test, y_predict))
+    print(classification_report(y_valtest, y_predict))
     #print(confusion_matrix(y_test, y_predict))
 
     
