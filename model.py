@@ -188,9 +188,20 @@ def main():
     #prompt = ['marangya', 'ang', 'iyong', 'ugali', ',', 'kaya', '\'', 't', 'ikaw', 'ay', 'paparusahan', 'ng', 'Diyos', '-', 'Amang', 'makapangyarihan', '.']
     #prompt = ['She\'s', 'not', 'that', 'good', 'at', 'all', ',', 'sa', 'totoo', 'lang', 'eh', '.']
     #prompt = ['Inis', 'sayo', 'kosah']
-    prompt = ['Kuhang-kuha', 'mo', 'inis', 'ko', 'yah', 'observe', 'safety', 'ka', 'lang', 'boi', 'baka', 'headshot', 'en', 'kita']
+    prompt = ['Wala', 'ka', 'bang', 'pasintabi', 'with', 'others', 'at', 'magpapataas', 'ka', 'pa', 'ng', 'presyo', 'ng', 'bilihin', '?', 'In', 'this', 'hardness',
+        'of', 'times', 'sa', 'thinking', 'mo', 'talaga', 'that\'s', 'still', 'okay', 'para', 'pahirapan', 'ang', 'countless', 'lives', 'relying', 'sa', 'supplies', '?']
+    expectations = ['FIL', 'FIL', 'FIL', 'FIL', 'ENG', 'ENG', 'FIL', 'FIL', 'FIL', 'FIL', 'FIL', 'FIL', 'FIL', 'FIL', 'OTH', 'ENG', 'ENG', 'ENG', 'ENG', 'ENG', 'FIL',
+        'ENG', 'FIL', 'FIL', 'ENG', 'ENG', 'ENG', 'FIL', 'FIL', 'FIL', 'ENG', 'ENG', 'ENG', 'FIL', 'ENG', 'OTH' ]
+    prediction = final_model.predict(wpar.pdfy(prompt))
+    correct_count = 0
+    for i in range(len(prompt)):
+        if prediction[i] == expectations[i]:
+            correct_count += 1
+    custom_accuracy = correct_count / len(prompt) * 100
     print(f"Prompt: {prompt}")
-    print(f"Custom prediction results: {final_model.predict(wpar.pdfy(prompt))}")
+    print(f"Expected: {expectations}")
+    print(f"Custom prediction results: {prediction}")
+    print(f"Prediction accuracy: {custom_accuracy:.2f}%")
 
     
 
