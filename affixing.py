@@ -3,8 +3,8 @@ vowels = [
     'a', 'e', 'i', 'o', 'u' 
 ]
 consonants = [
-    'B', 'K', 'D', 'G', 'H', 'L', 'M', 'N', 'P', 'R', 'S', 'T', 'W', 'Y',
-    'b', 'k', 'd', 'g', 'h', 'l', 'm', 'n', 'p', 'r', 's', 't', 'w', 'y'
+    'B', 'C', 'K', 'D', 'G', 'H', 'J', 'L', 'M', 'N', 'P', 'R', 'S', 'T', 'W', 'Y',
+    'b', 'c', 'k', 'd', 'g', 'h', 'j', 'l', 'm', 'n', 'p', 'r', 's', 't', 'w', 'y'
 ]
 _fil_raw_prefix_list = [
     'a', 'a-',
@@ -244,7 +244,7 @@ def on_infix(word):
     return len(trim_infix(trim_prefix(word)[1])[0]) > 0
 
 def has_fil_affixing(word):
-    return on_prefix(word) + on_suffix(word) + on_infix(word)
+    return on_prefix(word) * 4 + on_suffix(word) * 2 + on_infix(word)
 
 """
 # Test run
