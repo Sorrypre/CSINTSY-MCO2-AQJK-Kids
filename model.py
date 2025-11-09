@@ -8,9 +8,9 @@ import re
 
 from sklearn.model_selection import train_test_split
 # from sklearn.preprocessing import <insert preprocessing module for Multinomial Naive Bayes>
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler, QuantileTransformer
+from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LogisticRegression
@@ -19,6 +19,10 @@ from  sklearn.metrics import accuracy_score, precision_score, recall_score, conf
 # For affixing feature
 import affixing as afx
 
+# Grammar and morphology assessment
+import gma
+
+# For turning list into a passable parameter for model.predict
 import word_parser as wpar
 
 # For dynamic assignment of features in word_parser
@@ -29,44 +33,17 @@ feature_columns = [
     'wordLength',
     'numNonPureAbakada',
     'filAffixSum',
-    'pronoun_type',
+    'filPronoun',
+    'engPronoun',
+    #'filPrefix',
+    #'filInfix',
+    #'filSuffix',
+    'filFirstCluster',
+    'filMiddleCluster',
+    'engFirstCluster',
+    'engMiddleCluster',
+    'engEndCluster',
     'ne_tag',
-]
-
-fil_pronouns = [
-    'ikaw', 'kaw', 'ka', 'mo', 'iyo', 'sayo',
-    'ako', 'ko', 'akin', 'sakin',
-    'siya', 'sya', 'niya', 'kaniya', 'sakaniya',
-    'sila', 'nila', 'kanila', 'sakanila',
-    'kayo', 'kamo', 'ninyo', 'niyo', 'inyo', 'sainyo',
-    'tayo', 'natin', 'atin', 'satin',
-    'kami', 'namin', 'amin', 'samin',
-    
-    'ito', 'eto', 'heto', 'nito', 'neto', 'dito', 'nandito', 'narito', 'ganito', 'ganto',
-    'iyan', 'yan', 'hayan', 'niyan', 'nyan', 'diyan', 'dyan', 'jan', 'nandiyan', 'nandyan', 'nanjan', 'ganiyan', 'ganyan', 'gay-an', 'gayan',
-    'iyon', 'iyun', 'yon', 'yun', 'yaon', 'hayon', 'niyon', 'noon', 'nun', 'doon', 'dun', 'nandoon', 'nandun', 'naroon', 'naron', 'ayon', 'ayun',
-    
-    'ano', 'sino', 'saan', 'san', 'alin', 'gaano', 'gano', 'ilan', 'bakit', 'paano', 'pano', 'kailan', 'kelan',
-    'anuman', 'sinoman', 'sinuman', 'saanman', 'sanman', 'alinman', 'gaanoman', 'ganoman', 'ganuman', 'ilanman', 'paanoman', 'panoman', 'panuman', 'kailanman', 'kelanman'
-]
-
-eng_pronouns = [
-    'I', 'i', 'me', 'myself', 'mine', 'my',
-    'we', 'us', 'ourself', 'ourselves', 'ours', 'our',
-    'you', 'u', 'yourself', 'urself', 'yourselves', 'urselves', 'yours', 'urs', 'your', 'ur',
-    'thou', 'thee', 'thyself', 'theeself', 'thine',
-    'yall', 'yallselves',
-    'he', 'him', 'himself', 'hisself', 'his',
-    'she', 'her', 'herself',
-    'it', 'its', 'itself',
-    'they', 'them', 'themselves', 'their', 'theirs',
-    'one', 'oneself',
-    
-    'this', 'that', 'these', 'those', 'such',
-    'all', 'any', 'every', 'everyone', 'everybody', 'somebody', 'anybody', 'someone', 'anyone', 'everyone',
-    'noone', 'nothing', 'none', 'nobody',
-    'who', 'whom', 'what', 'where', 'when', 'why', 'how',
-    'whoever', 'whomever', 'whatever', 'wherever', 'whenever', 'however'
 ]
 
 def feature_is_capitalized(r):
@@ -83,33 +60,44 @@ def feature_word_length(r):
 
 def feature_non_pure_abakada_count(r):
     subj = r['word']
-    return 0 if pd.isna(subj) or not len(subj) else len(re.findall(r'[cfjqvxz]', subj))
+    return 0 if pd.isna(subj) or not len(subj) else len(re.findall(r'[fqvxz]', subj))
     
 def feature_fil_affix_sum(r):
     subj = r['word']
     return 0 if pd.isna(subj) or not len(subj) else afx.has_fil_affixing(subj)
+            
+def feature_fil_pronoun(r):
+    subj = r['word']
+    return '' if pd.isna(subj) or not len(subj) else gma.return_or_empty_if_fil(subj)
+
+def feature_eng_pronoun(r):
+    subj = r['word']
+    return '' if pd.isna(subj) or not len(subj) else gma.return_or_empty_if_eng(subj)
+
+def feature_ffc(r):
+    subj = r['word']
+    return '' if pd.isna(subj) or not len(subj) else gma.fil_first_cluster(subj)
+
+def feature_fmc(r):
+    subj = r['word']
+    return '' if pd.isna(subj) or not len(subj) else gma.fil_middle_cluster(subj)
     
+def feature_efc(r):
+    subj = r['word']
+    return '' if pd.isna(subj) or not len(subj) else gma.eng_first_cluster(subj)
+
+def feature_emc(r):
+    subj = r['word']
+    return '' if pd.isna(subj) or not len(subj) else gma.eng_middle_cluster(subj)
+
+def feature_eec(r):
+    subj = r['word']
+    return '' if pd.isna(subj) or not len(subj) else gma.eng_end_cluster(subj)
+
 def feature_ne_tag(r):
     subj = r['is_ne']
     return 0 if pd.isna(subj) or not len(subj) else 1
-
-def is_fil_pronoun(word):
-    return len(word) > 0 and word.lower() in fil_pronouns
-
-def is_eng_pronoun(word):
-    return len(word) > 0 and (word == 'I' or word.lower() in eng_pronouns)
-
-def feature_pronoun_type(r):
-    subj = r['word']
-    if pd.isna(subj) or not len(subj):
-        return 0
-    if is_eng_pronoun(subj):
-        return 2
-    elif is_fil_pronoun(subj):
-        return 1
-    else:
-        return 0
-
+    
 def get_feature(n):
     if n == 1:
         return feature_is_capitalized
@@ -122,88 +110,108 @@ def get_feature(n):
     elif n == 5:
         return feature_fil_affix_sum
     elif n == 6:
-        return feature_pronoun_type
+        return feature_fil_pronoun
     elif n == 7:
+        return feature_eng_pronoun
+    elif n == 8:
+        return feature_ffc
+    elif n == 9:
+        return feature_fmc
+    elif n == 10:
+        return feature_efc
+    elif n == 11:
+        return feature_emc
+    elif n == 12:
+        return feature_eec
+    elif n == 13:
         return feature_ne_tag
     else:
         raise Exception('feature out of bounds')
 
-def main():
-    # Interpret
-    unprocessed_data = pd.read_csv('final_annotations.csv', dtype={'word': str}, keep_default_na=False, na_values=[], na_filter=False)
-    ann1 = pd.read_csv('ann1.csv', dtype={'word': str, 'label': str, 'is_ne': str}, keep_default_na=False, na_values=[], na_filter=False)
-    unprocessed_data = drop_irrelevant_columns(unprocessed_data)
-    for ep in eng_pronouns:
-        unprocessed_data.loc[len(unprocessed_data)] = [ep, 'ENG', '']
-    for fp in fil_pronouns:
-        unprocessed_data.loc[len(unprocessed_data)] = [fp, 'FIL', '']
-    unprocessed_data = pd.concat([unprocessed_data, ann1], ignore_index=True, sort=False)
-    unprocessed_data['previous_word'] = unprocessed_data['word'].shift(1, fill_value='')
-    unprocessed_data['next_word'] = unprocessed_data['word'].shift(-1, fill_value='')
-    for f in range(1, len(feature_columns)):
-        unprocessed_data[feature_columns[f]] = unprocessed_data.apply(get_feature(f), axis=1)
-    print(unprocessed_data[unprocessed_data['label'] == 'ENG'])
-    
-    # Test run
-    #print(unprocessed_data[['word', 'isFirstLetterCapital', 'numVowels', 'wordLength', 'numNonPureAbakada', 'filAffixSum']].to_string())
-    # To check na values (naalala ko na yung code)
-    na_rows = unprocessed_data['word'].isna()
-    #print(unprocessed_data[na_rows])
-    #print("Rows with empty word: ", na_rows.sum())
-
-    X = unprocessed_data[feature_columns + ['previous_word', 'next_word']]
-    y = unprocessed_data['label']
-    
-    #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, stratify=y)
-    #X_valtrain, X_valtest, y_valtrain, y_valtest = train_test_split(X_train, y_train, test_size=0.5, stratify=y_train)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, stratify=y)
-    X_valtrain, X_validation, y_valtrain, y_validation = train_test_split(X_test, y_test, test_size=0.5, stratify=y_test)
-    
-    # column transfomer to for the model to better understand the features and drop irrelevant columns
-    
-    # character N-grams for the word column (2-4)
-    word_transformer = TfidfVectorizer(analyzer='char', ngram_range=(2,4))
-    # numerical features scaling for good practice raw
-    numerical_transformer = Pipeline(steps=[('scaler', QuantileTransformer())])
-    preprocessor = ColumnTransformer(transformers=[('nGramText', word_transformer, 'word'), 
-                                                    ('general_score', numerical_transformer, feature_columns[1:4] + feature_columns[6:]),
-                                                    ('FIL_score', numerical_transformer, feature_columns[4:6])], remainder='drop')
-    
-    final_model = Pipeline(steps=[('preprocessor', preprocessor), ('classifier', LogisticRegression(solver='saga', max_iter=2**15-1))]) # random_state=69
-
-    # Training the model
-    final_model.fit(X_train, y_train)
-
-    # Evaluation of the model
-    #print(X_valtest)
-    y_predict = final_model.predict(X_valtrain)
-    print(f"Prediction target test values: {y_predict}")
-    print(f"Actual target test values:   {y_valtrain}")
-    acc_score = accuracy_score(y_valtrain, y_predict)
-    print(f"Model Accuracy on Test Set: {acc_score:.4f}")
-    print(classification_report(y_valtrain, y_predict))
-    #print(confusion_matrix(y_test, y_predict))
-    
-    # Custom prediction
-    #prompt = ['marangya', 'ang', 'iyong', 'ugali', ',', 'kaya', '\'', 't', 'ikaw', 'ay', 'paparusahan', 'ng', 'Diyos', '-', 'Amang', 'makapangyarihan', '.']
-    #prompt = ['She\'s', 'not', 'that', 'good', 'at', 'all', ',', 'sa', 'totoo', 'lang', 'eh', '.']
-    #prompt = ['Inis', 'sayo', 'kosah']
-    prompt = ['Wala', 'ka', 'bang', 'pasintabi', 'with', 'others', 'at', 'magpapataas', 'ka', 'pa', 'ng', 'presyo', 'ng', 'bilihin', '?', 'In', 'this', 'hardness',
-        'of', 'times', 'sa', 'thinking', 'mo', 'talaga', 'that\'s', 'still', 'okay', 'para', 'pahirapan', 'ang', 'countless', 'lives', 'relying', 'sa', 'supplies', '?']
-    expectations = ['FIL', 'FIL', 'FIL', 'FIL', 'ENG', 'ENG', 'FIL', 'FIL', 'FIL', 'FIL', 'FIL', 'FIL', 'FIL', 'FIL', 'OTH', 'ENG', 'ENG', 'ENG', 'ENG', 'ENG', 'FIL',
-        'ENG', 'FIL', 'FIL', 'ENG', 'ENG', 'ENG', 'FIL', 'FIL', 'FIL', 'ENG', 'ENG', 'ENG', 'FIL', 'ENG', 'OTH' ]
-    prediction = final_model.predict(wpar.pdfy(prompt))
-    correct_count = 0
+def custom_model_test(model, prompt, expectations):
+    if not len(prompt) or not len(expectations):
+        raise Exception('prompt or expectation is empty')
+    if len(prompt) != len(expectations):
+        raise Exception('tokens in prompt and tokens in expectations should be equal')
+    predictions = model.predict(wpar.pdfy(prompt))
+    # Count corrects and incorrects
+    correct = 0
+    incorrects = []
     for i in range(len(prompt)):
-        if prediction[i] == expectations[i]:
-            correct_count += 1
-    custom_accuracy = correct_count / len(prompt) * 100
+        if predictions[i] == expectations[i]:
+            correct += 1
+        else:
+            incorrects.append([i, prompt[i], f"exp={expectations[i]}", f"pred={predictions[i]}"])
+    custom_accuracy = correct / len(prompt) * 100.0
     print(f"Prompt: {prompt}")
     print(f"Expected: {expectations}")
-    print(f"Custom prediction results: {prediction}")
+    print(f"Custom prediction results: {predictions}")
     print(f"Prediction accuracy: {custom_accuracy:.2f}%")
+    if len(incorrects):
+        print("Incorrects:")
+        for i in incorrects:
+            print(i)
 
+def main():
+    # Interpret
+    ann0 = pd.read_csv('final_annotations.csv', dtype={'word': str}, keep_default_na=False, na_values=[], na_filter=False)
+    ann1 = pd.read_csv('ann1.csv', dtype={'word': str, 'label': str, 'is_ne': str}, keep_default_na=False, na_values=[], na_filter=False)
+    # Drop irrelevant columns
+    ann0 = drop_irrelevant_columns(ann0)
+    # Copy to another column if it is a pronoun
+    ann_full = pd.concat([ann0, ann1], ignore_index=True, sort=False)
+    # Get adjacent words
+    ann_full['previous_word'] = ann_full['word'].shift(1, fill_value='')
+    ann_full['next_word'] = ann_full['word'].shift(-1, fill_value='')
+    # Make a column for each feature
+    for f in range(1, len(feature_columns)):
+        ann_full[feature_columns[f]] = ann_full.apply(get_feature(f), axis=1)
+    #print(ann_full)
     
+    X = ann_full[feature_columns + ['previous_word', 'next_word', 'is_ne']]
+    y = ann_full['label']
+    
+    # Split for a train-test set
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, stratify=y, random_state=0)
+    # Split again for a validation set
+    X_train2, X_validation, y_train2, y_validation = train_test_split(X_train, y_train, test_size=0.50, stratify=y_train, random_state=0)
+    
+    word_transformer = TfidfVectorizer(analyzer='char', ngram_range=(2,4))
+    comma_tokenizer = lambda s: [t.strip() for t in s.split(',')]
+    tag_transformer = CountVectorizer(binary=True)
+    numerical_transformer = Pipeline(steps=[('scaler', StandardScaler())])
+    categorical_transformer = Pipeline(steps=[('onehot', OneHotEncoder(handle_unknown='ignore'))])
+    preprocessor = ColumnTransformer(transformers=[
+        ('text', word_transformer, 'word'),
+        ('numeric', numerical_transformer, feature_columns[1:6] + [feature_columns[13]]),
+        ('cf_pr', categorical_transformer, [feature_columns[6]]),
+        ('ce_pr', categorical_transformer, [feature_columns[7]]),
+        ('cf_fc', tag_transformer, feature_columns[8]),
+        ('cf_mc', tag_transformer, feature_columns[9]),
+        ('ce_fc', tag_transformer, feature_columns[10]),
+        ('ce_mc', tag_transformer, feature_columns[11]),
+        ('ce_ec', tag_transformer, feature_columns[12])
+    ], remainder='drop')
+    model = Pipeline(steps=[
+        ('preprocessor', preprocessor),
+        ('classifier', LogisticRegression(solver='saga', max_iter=2**15-1))
+    ])
+    
+    # Train model
+    model.fit(X_train2, y_train2)
+    
+    # Interpret results
+    y_predict = model.predict(X_test)
+    print(f"Prediction target test values: {y_predict}")
+    print(f"Actual target test values:   {y_test}")
+    acc_score = accuracy_score(y_test, y_predict)
+    print(f"Model accuracy on test set: {acc_score:.4f}")
+    print(classification_report(y_test, y_predict))
+    
+    # Custom prediction
+    prompt = ['pain', 'in', 'the', 'ass']
+    expectations = ['ENG', 'ENG', 'ENG', 'ENG']
+    custom_model_test(model, prompt, expectations)
 
 # Data cleaning: Removing irrelevant columns for feature matrix
 # Droped is_ne and is correct spelling for now kasi sabi ni sir pwede gamitin although not necessary 
