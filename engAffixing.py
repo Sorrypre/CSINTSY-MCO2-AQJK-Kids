@@ -88,4 +88,4 @@ def on_eng_suffix(word):
     return len(trim_suffix(word)[0]) > 0
 
 def has_eng_affixing(word):
-    return on_prefix(word) * 2 + on_suffix(word)
+    return on_eng_prefix(word) * 2 + on_eng_suffix(word)

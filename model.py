@@ -17,7 +17,8 @@ from sklearn.linear_model import LogisticRegression
 from  sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix, classification_report
 
 # For affixing feature
-import filAffixing as afx
+import filAffixing as fafx
+import engAffixing as eafx
 
 # Grammar and morphology assessment
 import gma
@@ -44,6 +45,7 @@ feature_columns = [
     'engMiddleCluster',
     'engEndCluster',
     'ne_tag',
+    'engAffixSum'
 ]
 
 def feature_is_capitalized(r):
@@ -64,7 +66,11 @@ def feature_non_pure_abakada_count(r):
     
 def feature_fil_affix_sum(r):
     subj = r['word']
-    return 0 if pd.isna(subj) or not len(subj) else afx.has_fil_affixing(subj)
+    return 0 if pd.isna(subj) or not len(subj) else fafx.has_fil_affixing(subj)
+    
+def feature_eng_affix_sum(r):
+    subj = r['word']
+    return 0 if pd.isna(subj) or not len(subj) else eafx.has_eng_affixing(subj)
             
 def feature_fil_pronoun(r):
     subj = r['word']
@@ -125,6 +131,8 @@ def get_feature(n):
         return feature_eec
     elif n == 13:
         return feature_ne_tag
+    elif n == 14:
+        return feature_eng_affix_sum
     else:
         raise Exception('feature out of bounds')
 
@@ -166,7 +174,7 @@ def main():
     # Make a column for each feature
     for f in range(1, len(feature_columns)):
         ann_full[feature_columns[f]] = ann_full.apply(get_feature(f), axis=1)
-    #print(ann_full)
+    print(ann_full)
     
     X = ann_full[feature_columns + ['previous_word', 'next_word', 'is_ne']]
     y = ann_full['label']
@@ -174,7 +182,7 @@ def main():
     # Split for a train-test set
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, stratify=y, random_state=0)
     # Split again for a validation set
-    X_train2, X_validation, y_train2, y_validation = train_test_split(X_train, y_train, test_size=0.50, stratify=y_train, random_state=0)
+    X_train2, X_validation, y_train2, y_validation = train_test_split(X_test, y_test, test_size=0.50, stratify=y_test, random_state=0)
     
     word_transformer = TfidfVectorizer(analyzer='char', ngram_range=(2,4))
     comma_tokenizer = lambda s: [t.strip() for t in s.split(',')]
@@ -198,7 +206,7 @@ def main():
     ])
     
     # Train model
-    model.fit(X_train2, y_train2)
+    model.fit(X_train, y_train)
     
     # Interpret results
     y_predict = model.predict(X_test)
