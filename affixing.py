@@ -141,7 +141,8 @@ _fil_raw_suffix_list = [
     'ong', 'ang',
     'oy',
     'sya', 'siya',
-    'syon', 'siyon'
+    'syon', 'siyon',
+    '\'n','\'y', '\'t'
 ]
 
 """
@@ -244,7 +245,7 @@ def on_infix(word):
     return len(trim_infix(trim_prefix(word)[1])[0]) > 0
 
 def has_fil_affixing(word):
-    return on_prefix(word) * 4 + on_suffix(word) * 2 + on_infix(word)
+    return on_prefix(word) * 4 + on_infix(word) * 2 + on_suffix(word)
 
 """
 # Test run

@@ -209,8 +209,8 @@ def main():
     print(classification_report(y_test, y_predict))
     
     # Custom prediction
-    prompt = ['pain', 'in', 'the', 'ass']
-    expectations = ['ENG', 'ENG', 'ENG', 'ENG']
+    prompt = ['magtetesting','ako','ng','nagswitch','na', 'salita']
+    expectations = ['FIL','FIL', 'FIL', 'FIL', 'FIL', 'FIL']
     custom_model_test(model, prompt, expectations)
 
 # Data cleaning: Removing irrelevant columns for feature matrix
