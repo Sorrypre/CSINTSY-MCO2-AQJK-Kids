@@ -178,7 +178,7 @@ def main():
     
     word_transformer = TfidfVectorizer(analyzer='char', ngram_range=(2,4))
     comma_tokenizer = lambda s: [t.strip() for t in s.split(',')]
-    tag_transformer = CountVectorizer(binary=True)
+    tag_transformer = CountVectorizer(tokenizer=comma_tokenizer,binary=True)
     numerical_transformer = Pipeline(steps=[('scaler', StandardScaler())])
     categorical_transformer = Pipeline(steps=[('onehot', OneHotEncoder(handle_unknown='ignore'))])
     preprocessor = ColumnTransformer(transformers=[
