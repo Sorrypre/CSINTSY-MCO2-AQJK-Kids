@@ -1,4 +1,4 @@
-import affixing
+import filAffixing
 
 fil_pronouns = [
     'ikaw', 'kaw', '\'kaw', 'ka', 'mo', 'iyo', 'sayo', 'sa\'yo',
@@ -131,37 +131,6 @@ def fil_middle_cluster(word):
                     clusters.add(m)
     return ",".join(clusters)
 
-"""
-def fil_clusters(word):
-    clusters = [[], [], []]
-    lword = word.lower()
-    # There can be only one cluster formed at the beginning,
-    # i.e. the first two letters of the word
-    first_str = lword[0:2]
-    for f in fil_first_clusters:
-        if f == first_str:
-            clusters[0].append(f)
-            break
-    # To check for middle clusters, the word must be at least 4 letters long,
-    # because there would be only 1 letter left in the middle if the word only has
-    # 3 letters. (much worse for a 2-letter and a 1-letter word)
-    if len(word) < 4:
-        return clusters
-    # The middle cluster could be anywhere in the middle of the word
-    # The following has to be checked:
-    # - word with first and last letter removed
-    # - word with first two letters removed, as well as the last letter
-    # - word with first letter as well as two last letters removed
-    # - word with the first and last two letters removed
-    mid_strs = [lword[1:len(word)-1], lword[2:len(word)-1], lword[1:len(word)-2], lword[2:len(word)-2]]
-    for s in mid_strs:
-        for m in fil_middle_clusters:
-            if s.contains(m):
-                clusters[1].append(m)
-    # There are no actual C-C end clusters in Filipino words (unless conjugated or borrowed)
-    return clusters
-"""
-
 def eng_first_cluster(word):
     if len(word) >= 3:
         lword = word.lower()
@@ -192,27 +161,3 @@ def eng_end_cluster(word):
 
 if __name__ == '__main__':
     print(eng_end_cluster('though'))
-
-"""
-def eng_clusters(word):
-    clusters = [[], [], []]
-    lword = word.lower()
-    first_str = lword[0:2]
-    for f in eng_first_clusters:
-        if f == first_str:
-            clusters[0].append(f)
-            break
-    if len(word) >= 4:
-        # Since the consonant clusters in English is very complex,
-        # we will only do (1,2) and (2,2)
-        mid_strs = [lword[1:len(word)-2], lword[2:len(word)-2]]
-        for s in mid_strs:
-            for m in eng_middle_clusters:
-                if s.contains(m):
-                    clusters[1].append(m)
-    # If it ends on a C-C, it's most likely English
-    end_str = lword[len(word)-3:]
-    if end_str[0] in affixing.consonants and end_str[1] in affixing.consonants:
-        clusters[2].append(end_str)
-    return clusters
-"""

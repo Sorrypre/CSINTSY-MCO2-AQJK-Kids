@@ -234,18 +234,18 @@ def trim_infix(word):
                             return [i, f] if low == lw else [i, f"{pref[0]}{f}"]
     return ['', lw]
 
-def on_prefix(word):
+def on_fil_prefix(word):
     return len(trim_prefix(word)[0]) > 0
 
-def on_suffix(word):
+def on_fil_suffix(word):
     return len(trim_suffix(word)[0]) > 0
 
-def on_infix(word):
+def on_fil_infix(word):
     # Trim the prefix first to not duplicate the counting
     return len(trim_infix(trim_prefix(word)[1])[0]) > 0
 
 def has_fil_affixing(word):
-    return on_prefix(word) * 4 + on_infix(word) * 2 + on_suffix(word)
+    return on_fil_prefix(word) * 4 + on_fil_infix(word) * 2 + on_fil_suffix(word)
 
 """
 # Test run

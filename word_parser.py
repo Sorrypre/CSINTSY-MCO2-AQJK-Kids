@@ -1,5 +1,5 @@
 import model
-import affixing
+import filAffixing
 import pandas
 
 def mark_ne(p, c, n):

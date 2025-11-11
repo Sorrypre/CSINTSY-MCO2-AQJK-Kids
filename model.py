@@ -17,7 +17,7 @@ from sklearn.linear_model import LogisticRegression
 from  sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix, classification_report
 
 # For affixing feature
-import affixing as afx
+import filAffixing as afx
 
 # Grammar and morphology assessment
 import gma
@@ -209,7 +209,7 @@ def main():
     print(classification_report(y_test, y_predict))
     
     # Custom prediction
-    prompt = ['magtetesting','ako','ng','nagswitch','na', 'salita']
+    prompt = ['magtetesting','ako','ng','cinallout','na', 'salita']
     expectations = ['FIL','FIL', 'FIL', 'FIL', 'FIL', 'FIL']
     custom_model_test(model, prompt, expectations)
 

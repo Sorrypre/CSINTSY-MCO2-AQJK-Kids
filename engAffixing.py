@@ -12,7 +12,7 @@ _eng_raw_prefix_list = ['a', 'an', 'ante', 'anti',
 'homo',
 'homeo',
 'hyper',
-'il','im','in','irr',
+'il','im','in','ir',
 'in','inter',
 'intra','intro',
 'macro',
@@ -81,10 +81,10 @@ def trim_suffix(word):
                 return [s, lw[:len(lw)-len(s)]]
     return ['', lw]
 
-def on_prefix(word):
+def on_eng_prefix(word):
     return len(trim_prefix(word)[0]) > 0
 
-def on_suffix(word):
+def on_eng_suffix(word):
     return len(trim_suffix(word)[0]) > 0
 
 def has_eng_affixing(word):
