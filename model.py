@@ -180,18 +180,18 @@ def main():
     y = ann_full['label']
     
     # Split for a train-test set
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.30, stratify=y, random_state=0)
+    X_train, X_testRaw, y_train, y_testRaw = train_test_split(X, y, test_size=0.30, stratify=y)
     # Split again for a validation set
-    X_train2, X_validation, y_train2, y_validation = train_test_split(X_test, y_test, test_size=0.50, stratify=y_test, random_state=0)
+    X_test, X_validation, y_test, y_validation = train_test_split(X_testRaw, y_testRaw, test_size=0.50, stratify=y_testRaw)
     
     word_transformer = TfidfVectorizer(analyzer='char', ngram_range=(2,4))
     comma_tokenizer = lambda s: [t.strip() for t in s.split(',')]
-    tag_transformer = CountVectorizer(tokenizer=comma_tokenizer,binary=True)
+    tag_transformer = CountVectorizer(tokenizer=comma_tokenizer, token_pattern=None, binary=True)
     numerical_transformer = Pipeline(steps=[('scaler', StandardScaler())])
     categorical_transformer = Pipeline(steps=[('onehot', OneHotEncoder(handle_unknown='ignore'))])
     preprocessor = ColumnTransformer(transformers=[
         ('text', word_transformer, 'word'),
-        ('numeric', numerical_transformer, feature_columns[1:6] + [feature_columns[13]]),
+        ('numeric', numerical_transformer, feature_columns[1:6] + feature_columns[13:]),
         ('cf_pr', categorical_transformer, [feature_columns[6]]),
         ('ce_pr', categorical_transformer, [feature_columns[7]]),
         ('cf_fc', tag_transformer, feature_columns[8]),
@@ -209,16 +209,26 @@ def main():
     model.fit(X_train, y_train)
     
     # Interpret results
-    y_predict = model.predict(X_test)
-    print(f"Prediction target test values: {y_predict}")
-    print(f"Actual target test values:   {y_test}")
-    acc_score = accuracy_score(y_test, y_predict)
+    y_test_predict = model.predict(X_test)
+    y_validation_predict = model.predict(X_validation)
+    print("=========TEST RESULTS=========")
+    print(f"Prediction on test values: {y_test_predict}")
+    print(f"Actual test values:   {y_test}")
+    acc_score = accuracy_score(y_test, y_test_predict)
     print(f"Model accuracy on test set: {acc_score:.4f}")
-    print(classification_report(y_test, y_predict))
+    print("======VALIDATION RESULTS======")
+    print(f"Prediction on validation values: {y_validation_predict}")
+    print(f"Actual validation values:   {y_validation}")
+    acc_score = accuracy_score(y_validation, y_validation_predict)
+    print(f"Model accuracy on validation set: {acc_score:.4f}")
+    print("======VALIDATION RESULTS======")
+
+    print(classification_report(y_test, y_test_predict))
+    print(classification_report(y_validation, y_validation_predict))
     
     # Custom prediction
-    prompt = ['magtetesting','ako','ng','cinallout','na', 'salita']
-    expectations = ['FIL','FIL', 'FIL', 'FIL', 'FIL', 'FIL']
+    prompt = ['Testing','wrng', 'speling','.']
+    expectations = ['ENG','ENG', 'ENG', 'OTH']
     custom_model_test(model, prompt, expectations)
 
 # Data cleaning: Removing irrelevant columns for feature matrix
