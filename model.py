@@ -14,6 +14,7 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LogisticRegression
+from sklearn.ensemble import RandomForestClassifier
 from  sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix, classification_report
 
 # For affixing feature
@@ -202,7 +203,7 @@ def main():
     ], remainder='drop')
     model = Pipeline(steps=[
         ('preprocessor', preprocessor),
-        ('classifier', LogisticRegression(solver='saga', max_iter=2**15-1))
+        ('classifier', LogisticRegression(class_weight='balanced',solver='saga', max_iter=2**15-1))
     ])
     
     # Train model
@@ -227,8 +228,8 @@ def main():
     print(classification_report(y_validation, y_validation_predict))
     
     # Custom prediction
-    prompt = ['Testing','wrng', 'speling','.']
-    expectations = ['ENG','ENG', 'ENG', 'OTH']
+    prompt = ['balahura']
+    expectations = ['FIL']
     custom_model_test(model, prompt, expectations)
 
 # Data cleaning: Removing irrelevant columns for feature matrix

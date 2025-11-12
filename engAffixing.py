@@ -57,7 +57,8 @@ _eng_raw_suffix_list = ['acy',
 'ish','ive',
 'less',
 'y',
-'ing'
+'ing','ed','tion','sh','th','ee','oo',
+'\'ll', 'a\'', '\'t'
 ]
 
 _eng_prefix_list = sorted(_eng_raw_prefix_list, key=len, reverse=True)
