@@ -30,24 +30,42 @@ import word_parser as wpar
 # For dynamic assignment of features in word_parser
 feature_columns = [
     'word',
+    'ne_tag',
+    'isStartOfSentence',
     'isFirstLetterCapital',
     'numVowels',
     'wordLength',
     'numNonPureAbakada',
     'filAffixSum',
+    'engAffixSum',
     'filPronoun',
     'engPronoun',
-    #'filPrefix',
-    #'filInfix',
-    #'filSuffix',
+    'filPrefix',
+    'filInfix',
+    'filSuffix',
+    'engPrefix',
+    'engSuffix',
     'filFirstCluster',
     'filMiddleCluster',
     'engFirstCluster',
     'engMiddleCluster',
-    'engEndCluster',
-    'ne_tag',
-    'engAffixSum'
+    'engEndCluster'
 ]
+
+def feature_ne_tag(r):
+    subj = r['is_ne']
+    return 0 if pd.isna(subj) or not len(subj) else 1
+
+def feature_is_start_of_sentence(r):
+    helper = r['previous_word']
+    subj = r['word']
+    if pd.isna(helper) or not len(helper):
+        return 1
+    elif pd.isna(subj) or not len(subj):
+        return 0
+    elif helper[0] in ['.', '?', '!'] and subj[0].isupper():
+        return 1
+    return 0
 
 def feature_is_capitalized(r):
     subj = r['word']
@@ -72,7 +90,7 @@ def feature_fil_affix_sum(r):
 def feature_eng_affix_sum(r):
     subj = r['word']
     return 0 if pd.isna(subj) or not len(subj) else eafx.has_eng_affixing(subj)
-            
+
 def feature_fil_pronoun(r):
     subj = r['word']
     return '' if pd.isna(subj) or not len(subj) else gma.return_or_empty_if_fil(subj)
@@ -80,6 +98,26 @@ def feature_fil_pronoun(r):
 def feature_eng_pronoun(r):
     subj = r['word']
     return '' if pd.isna(subj) or not len(subj) else gma.return_or_empty_if_eng(subj)
+
+def feature_fil_prefix(r):
+    subj = r['word']
+    return '' if pd.isna(subj) or not len(subj) else fafx.trim_prefix(subj)[0]
+    
+def feature_fil_infix(r):
+    subj = r['word']
+    return '' if pd.isna(subj) or not len(subj) else fafx.trim_infix(subj)[0]
+    
+def feature_fil_suffix(r):
+    subj = r['word']
+    return '' if pd.isna(subj) or not len(subj) else fafx.trim_suffix(subj)[0]
+    
+def feature_eng_prefix(r):
+    subj = r['word']
+    return '' if pd.isna(subj) or not len(subj) else eafx.trim_prefix(subj)[0]
+
+def feature_eng_suffix(r):
+    subj = r['word']
+    return '' if pd.isna(subj) or not len(subj) else eafx.trim_suffix(subj)[0]
 
 def feature_ffc(r):
     subj = r['word']
@@ -100,40 +138,48 @@ def feature_emc(r):
 def feature_eec(r):
     subj = r['word']
     return '' if pd.isna(subj) or not len(subj) else gma.eng_end_cluster(subj)
-
-def feature_ne_tag(r):
-    subj = r['is_ne']
-    return 0 if pd.isna(subj) or not len(subj) else 1
     
 def get_feature(n):
     if n == 1:
-        return feature_is_capitalized
+       return feature_ne_tag 
     elif n == 2:
-        return feature_vowel_count
+        return feature_is_start_of_sentence
     elif n == 3:
-        return feature_word_length
+        return feature_is_capitalized
     elif n == 4:
-        return feature_non_pure_abakada_count
+        return feature_vowel_count
     elif n == 5:
-        return feature_fil_affix_sum
+        return feature_word_length
     elif n == 6:
-        return feature_fil_pronoun
+        return feature_non_pure_abakada_count
     elif n == 7:
-        return feature_eng_pronoun
+        return feature_fil_affix_sum
     elif n == 8:
-        return feature_ffc
-    elif n == 9:
-        return feature_fmc
-    elif n == 10:
-        return feature_efc
-    elif n == 11:
-        return feature_emc
-    elif n == 12:
-        return feature_eec
-    elif n == 13:
-        return feature_ne_tag
-    elif n == 14:
         return feature_eng_affix_sum
+    elif n == 9:
+        return feature_fil_pronoun
+    elif n == 10:
+        return feature_eng_pronoun
+    elif n == 11:
+        return feature_fil_prefix
+    elif n == 12:
+        return feature_fil_infix
+    elif n == 13:
+        return feature_fil_suffix
+    elif n == 14:
+        return feature_eng_prefix
+    elif n == 15:
+        return feature_eng_suffix
+    elif n == 16:
+        return feature_ffc
+    elif n == 17:
+        return feature_fmc
+    elif n == 18:
+        return feature_efc
+    elif n == 19:
+        return feature_emc
+    elif n == 20:
+        return feature_eec
     else:
         raise Exception('feature out of bounds')
 
@@ -174,10 +220,11 @@ def main():
     ann_full['next_word'] = ann_full['word'].shift(-1, fill_value='')
     # Make a column for each feature
     for f in range(1, len(feature_columns)):
+        #print(feature_columns[f])
         ann_full[feature_columns[f]] = ann_full.apply(get_feature(f), axis=1)
-    print(ann_full)
+    #print(ann_full)
     
-    X = ann_full[feature_columns + ['previous_word', 'next_word', 'is_ne']]
+    X = ann_full[feature_columns + ['previous_word', 'next_word', 'is_ne', 'label']]
     y = ann_full['label']
     
     # Split for a train-test set
@@ -192,14 +239,19 @@ def main():
     categorical_transformer = Pipeline(steps=[('onehot', OneHotEncoder(handle_unknown='ignore'))])
     preprocessor = ColumnTransformer(transformers=[
         ('text', word_transformer, 'word'),
-        ('numeric', numerical_transformer, feature_columns[1:6] + feature_columns[13:]),
-        ('cf_pr', categorical_transformer, [feature_columns[6]]),
-        ('ce_pr', categorical_transformer, [feature_columns[7]]),
-        ('cf_fc', tag_transformer, feature_columns[8]),
-        ('cf_mc', tag_transformer, feature_columns[9]),
-        ('ce_fc', tag_transformer, feature_columns[10]),
-        ('ce_mc', tag_transformer, feature_columns[11]),
-        ('ce_ec', tag_transformer, feature_columns[12])
+        ('numeric', numerical_transformer, feature_columns[1:9]),
+        ('cf_pr', categorical_transformer, [feature_columns[9]]),
+        ('ce_pr', categorical_transformer, [feature_columns[10]]),
+        ('cf_prf', categorical_transformer, [feature_columns[11]]),
+        ('cf_inf', categorical_transformer, [feature_columns[12]]),
+        ('cf_suf', categorical_transformer, [feature_columns[13]]),
+        ('ce_prf', categorical_transformer, [feature_columns[14]]),
+        ('ce_suf', categorical_transformer, [feature_columns[15]]),
+        ('cf_fc', tag_transformer, feature_columns[16]),
+        ('cf_mc', tag_transformer, feature_columns[17]),
+        ('ce_fc', tag_transformer, feature_columns[18]),
+        ('ce_mc', tag_transformer, feature_columns[19]),
+        ('ce_ec', tag_transformer, feature_columns[20])
     ], remainder='drop')
     model = Pipeline(steps=[
         ('preprocessor', preprocessor),
@@ -228,8 +280,10 @@ def main():
     print(classification_report(y_validation, y_validation_predict))
     
     # Custom prediction
-    prompt = ['balahura']
-    expectations = ['FIL']
+    #prompt = ['oo', 'nga', 'naman', '\'no', '...', 'makikita', 'mo', 'doon', 'soon', ',', 'pero', 'for', 'now', 'chill', 'ka', 'muna']
+    #expectations = ['FIL', 'FIL', 'FIL', 'FIL', 'OTH', 'FIL', 'FIL', 'FIL', 'ENG', 'OTH', 'FIL', 'ENG', 'ENG', 'ENG', 'FIL', 'FIL']
+    prompt = ['you\'re', 'a', 'pain']
+    expectations = ['ENG', 'ENG', 'ENG']
     custom_model_test(model, prompt, expectations)
 
 # Data cleaning: Removing irrelevant columns for feature matrix

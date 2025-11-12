@@ -15,7 +15,7 @@ fil_pronouns = [
     'iyon', 'yon', '\'yon', 'yun', '\'yun', 'yaon', 'hayon', 'niyon', 'nyon', 'n\'yon', 'noon', '\'nun', '\'non', 'doon', 'don', '\'don', 'dun', '\'dun',
         'nandoon', 'nandon', 'nando\'n', 'nandun', 'nandu\'n', 'naroon', 'naron', 'naro\'n', 'narun', 'naru\'n', 'ayon', 'ayun', '\'are', 'nare',
     
-    'ano', 'sino', 'saan', 'san', 'sa\'n', 'alin', 'gaano', 'gano', 'ga\'no', 'ilan', 'bakit', 'paano', 'pano', 'pa\'no', 'kailan', 'kelan',
+    'ano', '\'no', 'noh', 'sino', 'saan', 'san', 'sa\'n', 'alin', 'gaano', 'gano', 'ga\'no', 'ilan', 'bakit', 'paano', 'pano', 'pa\'no', 'kailan', 'kelan',
     'anuman', 'sinoman', 'sinuman', 'saanman', 'sanman', 'sa\'nman', 'alinman', 'gaanoman', 'ganuman', 'ganoman', 'ga\'numan', 'ga\'noman', 'ilanman', 'paanoman', 'panuman', 'panoman',
         'pa\'numan', 'pa\'noman', 'kailanman', 'kelanman'
 ]
@@ -40,12 +40,37 @@ eng_pronouns = [
 ]
 
 fil_first_clusters = [
+    'ch', 'sh',
+    'bl', 'gl', 'pl',
+    'br', 'kr', 'dr', 'gr', 'pr', 'tr',
+    'ts',
+    'bw', 'kw', 'gw', 'pw', 'sw',
+    'by', 'ky', 'dy', 'gy', 'ly', 'my', 'ny', 'py', 'ry', 'sy', 'ty'
+]
+
+"""
+fil_first_clusters = [
     'gl', 'kl', 'pl',
     'br', 'dr', 'gr', 'pr', 'tr',
     'bw', 'kw', 'gw', 'pw', 'sw',
     'ky', 'dy', 'gy', 'ny', 'py', 'ty'
 ]
+"""
 
+fil_middle_clusters = [
+    'kb', 'db', 'gb', 'lb', 'mb', 'rb', 'sb', 'wb', 'yb',
+    'dk', 'gk', 'lk', 'mk', 'pk', 'rk', 'sk', 'tk', 'yk',
+    'ch', 'kh', 'dh', 'gh', 'lh', 'mh', 'nh', 'rh', 'sh', 'th', 'wh', 'yh'
+    'bd', 'kd', 'gd', 'md', 'nd', 'pd', 'sd', 'td', 'wd', 'yd',
+    'bg', 'lg', 'mg', 'rg', 'sg', 'tg', 'wg', 'yg',
+    'bl', 'kl', 'dl', 'gl', 'ml', 'pl', 'tl', 'wl', 'yl',
+    'kp', 'dp', 'gp', 'hp', 'lp', 'mp', 'sp', 'tp', 'wp', 'yp',
+    'ks', 'ds', 'gs', 'ls', 'ns', 'ps', 'ts', 'ws', 'ys',
+    'bt', 'kt', 'dt', 'gt', 'lt', 'mt', 'nt', 'pt', 'st', 'wt', 'yt',
+    'by', 'ky', 'dy', 'gy', 'ly', 'my', 'ny', 'py', 'ry', 'sy', 'ty'
+]
+
+"""
 fil_middle_clusters = [
     'aa', 'ii', 'uo', 'ao',
     'kb', 'db', 'gb', 'lb', 'sb', 'tb', 'wb', 'yb',
@@ -59,28 +84,30 @@ fil_middle_clusters = [
     'ry', 'rl', 'rg', 'rm',
     'bt', 'kt', 'gt', 'wt'
 ]
+"""
 
 eng_first_clusters = [
-    'aa', 'ae', 'ai', 'ao', 'au',
+    'aa', 'ae', 'ai', 'au',
     'ea', 'ee', 'ei', 'eo', 'eu',
     'io',
     'oa', 'oi', 'oe', 'oo', 'ou',
     
     'bl', 'br', 'by',
-    'cl', 'cr', 'cz', 'cy',
-    'dr', 'dw', 'dy',
-    'fl', 'fr', 'fj', 
+    'cl', 'cn', 'cr', 'cz', 'cy',
+    'dr', 'dw', 'dv', 'dy',
+    'fl', 'fr', 'fj',
     'gh', 'gl', 'gn', 'gr', 'gw', 'gy',
     'kn', 'kr',
     'ph', 'pl', 'pn', 'pr', 'ps', 'pt', 'py'
     'rh', 'ry',
-    'sc', 'sf', 'sh', 'sk', 'sl', 'sm', 'sn', 'sp', 'st', 'sv', 'sw',
-    'th', 'tr', 'ts', 'tw',
+    'sc', 'sh', 'sk', 'sl', 'sm', 'sn', 'sp', 'st', 'sv', 'sw', 'sy',
+    'th', 'tr', 'ts', 'tw', 'ty',
     'wh', 'wr', 'wy',
     'xy',
     'zh', 'zy'
 ]
 
+"""
 eng_middle_clusters = [
     'ae', 'au', 'oo', 'ou', 'uu', 'ee', 'ea', 'ei', 'eo', 'eu',
     'bb', 'cc', 'dd', 'ff', 'gg', 'll', 'mm', 'nn', 'pp', 'rr', 'ss', 'tt', 'vv', 'xx', 'zz',
@@ -93,6 +120,29 @@ eng_middle_clusters = [
     'bl', 'br', 'cl', 'cr', 'dr', 'dl', 'fl', 'fr', 'gl', 'gr', 'pl', 'pr', 'tr', 'tl',
     'ch', 'gh', 'ph', 'sh', 'th', 'wh', 'zh',
     'ps', 'ts', 'ks', 'xt', 'dv', 'dj', 'gn'
+]
+"""
+
+eng_middle_clusters = [
+    'ae', 'au', 'oo', 'ou', 'uu', 'ee', 'ea', 'ei', 'eo', 'eu',
+    
+    'bb', 'cc', 'dd', 'ff', 'gg', 'll', 'mm', 'nn', 'pp', 'rr', 'ss', 'tt', 'vv', 'xx', 'zz',
+    'bd', 'bg', 'bh', 'bl', 'bn', 'br', 'bs', 'bt', 'bv', 'by',
+    'ch', 'ck', 'cm', 'cn', 'cq', 'cr', 'cs', 'ct', 'cy',
+    'dg', 'dl', 'dm', 'dn', 'dp', 'dr', 'dt', 'dv', 'dw',
+    'fl', 'fr', 'ft',
+    'gh', 'gl', 'gn', 'gp', 'gr', 'gt',
+    'kj', 'kl', 'km', 'kn', 'kp', 'kr', 'ks'
+    'lb', 'lc', 'ld', 'lf', 'lg', 'lk', 'lm', 'ln', 'lp', 'ls', 'lt', 'lv',
+    'mb', 'mp', 'mf', 'mn',
+    'nd', 'nk', 'ns', 'nt', 'nf', 'ns', 'nz',
+    'pf', 'ph', 'pl', 'pn', 'pr', 'ps', 'pt',
+    'rb', 'rc', 'rd', 'rf', 'rg', 'rk', 'rm', 'rn', 'rp', 'rs', 'rt', 'rv',
+    'sc', 'sk', 'sl', 'sm', 'sn', 'sp', 'st', 'sw',
+    'tc', 'th', 'tp', 'tr',
+    'wf', 'wh', 'wn', 'wr', 'ws', 'wt', 'wy',
+    'xp', 'xt', 'xy',
+    'zh', 'zm'
 ]
 
 def return_or_empty_if_eng(word):
