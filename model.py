@@ -212,10 +212,11 @@ def main():
     # Interpret
     ann0 = pd.read_csv('final_annotations.csv', dtype={'word': str}, keep_default_na=False, na_values=[], na_filter=False)
     ann1 = pd.read_csv('ann1.csv', dtype={'word': str, 'label': str, 'is_ne': str}, keep_default_na=False, na_values=[], na_filter=False)
+    ann3 = pd.read_csv('ann3.csv', dtype={'word': str, 'label': str, 'is_ne': str}, keep_default_na=False, na_values=[], na_filter=False)
     # Drop irrelevant columns
     ann0 = drop_irrelevant_columns(ann0)
     # Copy to another column if it is a pronoun
-    ann_full = pd.concat([ann0, ann1], ignore_index=True, sort=False)
+    ann_full = pd.concat([ann0, ann1, ann3], ignore_index=True, sort=False)
     # Get adjacent words
     ann_full['previous_word'] = ann_full['word'].shift(1, fill_value='')
     ann_full['next_word'] = ann_full['word'].shift(-1, fill_value='')
@@ -302,8 +303,8 @@ def main():
     # Custom prediction
     #prompt = ['oo', 'nga', 'naman', '\'no', '...', 'makikita', 'mo', 'doon', 'soon', ',', 'pero', 'for', 'now', 'chill', 'ka', 'muna']
     #expectations = ['FIL', 'FIL', 'FIL', 'FIL', 'OTH', 'FIL', 'FIL', 'FIL', 'ENG', 'OTH', 'FIL', 'ENG', 'ENG', 'ENG', 'FIL', 'FIL']
-    prompt = ['Jensel']
-    expectations = ['OTH']
+    prompt = ['Teka', 'lang', 'Kurt', '...']
+    expectations = ['FIL', 'FIL', 'OTH', 'OTH']
     custom_model_test(model, prompt, expectations)
 
 # Data cleaning: Removing irrelevant columns for feature matrix
