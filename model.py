@@ -22,6 +22,8 @@ from sklearn.model_selection import GridSearchCV
 import filAffixing as fafx
 import engAffixing as eafx
 
+# joblib import for serialization of the model
+import joblib
 # Grammar and morphology assessment
 import gma
 
@@ -207,9 +209,17 @@ def custom_model_test(model, prompt, expectations):
         print("Incorrects:")
         for i in incorrects:
             print(i)
+# Data cleaning: Removing irrelevant columns for feature matrix
+# Droped is_ne and is correct spelling for now kasi sabi ni sir pwede gamitin although not necessary 
+def drop_irrelevant_columns(df):
+    df_essential = df.drop(columns=["word_id", "sentence_id", "is_spelling_correct"])
+    return df_essential
+
+def comma_tokenizer(s):
+    return [t.strip() for t in s.split(',')]
 
 def main():
-    # Interpret
+            # Interpret
     ann0 = pd.read_csv('final_annotations.csv', dtype={'word': str}, keep_default_na=False, na_values=[], na_filter=False)
     ann1 = pd.read_csv('ann1.csv', dtype={'word': str, 'label': str, 'is_ne': str}, keep_default_na=False, na_values=[], na_filter=False)
     ann3 = pd.read_csv('ann3.csv', dtype={'word': str, 'label': str, 'is_ne': str}, keep_default_na=False, na_values=[], na_filter=False)
@@ -241,8 +251,7 @@ def main():
     # }
 
     
-    word_transformer = TfidfVectorizer(analyzer='char', ngram_range=(1,4), lowercase=False)
-    comma_tokenizer = lambda s: [t.strip() for t in s.split(',')]
+    word_transformer = TfidfVectorizer(analyzer='char', ngram_range=(2,4), lowercase=False)
     tag_transformer = CountVectorizer(tokenizer=comma_tokenizer, token_pattern=None, binary=True)
     numerical_transformer = Pipeline(steps=[('scaler', StandardScaler())])
     categorical_transformer = Pipeline(steps=[('onehot', OneHotEncoder(handle_unknown='ignore'))])
@@ -300,6 +309,8 @@ def main():
     print(classification_report(y_test, y_test_predict))
     print(classification_report(y_validation, y_validation_predict))
     
+    #Insert serialization of the model
+    joblib.dump(model, 'LR_pinoybot_model.joblib')
     # Custom prediction
     #prompt = ['oo', 'nga', 'naman', '\'no', '...', 'makikita', 'mo', 'doon', 'soon', ',', 'pero', 'for', 'now', 'chill', 'ka', 'muna']
     #expectations = ['FIL', 'FIL', 'FIL', 'FIL', 'OTH', 'FIL', 'FIL', 'FIL', 'ENG', 'OTH', 'FIL', 'ENG', 'ENG', 'ENG', 'FIL', 'FIL']
@@ -307,11 +318,6 @@ def main():
     expectations = ['FIL', 'FIL', 'OTH', 'OTH']
     custom_model_test(model, prompt, expectations)
 
-# Data cleaning: Removing irrelevant columns for feature matrix
-# Droped is_ne and is correct spelling for now kasi sabi ni sir pwede gamitin although not necessary 
-def drop_irrelevant_columns(df):
-    df_essential = df.drop(columns=["word_id", "sentence_id", "is_spelling_correct"])
-    return df_essential
 
 # feature engineering
 # 1. prefix/suffix/Character-level n-grams, word Lengths(numerical), capitilization(True or false)
