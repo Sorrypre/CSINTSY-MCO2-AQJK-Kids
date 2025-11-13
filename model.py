@@ -16,6 +16,7 @@ from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from  sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix, classification_report
+from sklearn.model_selection import GridSearchCV
 
 # For affixing feature
 import filAffixing as fafx
@@ -231,8 +232,15 @@ def main():
     X_train, X_testRaw, y_train, y_testRaw = train_test_split(X, y, test_size=0.30, stratify=y)
     # Split again for a validation set
     X_test, X_validation, y_test, y_validation = train_test_split(X_testRaw, y_testRaw, test_size=0.50, stratify=y_testRaw)
+
+    # Parameter grid to explore for GridSearchCV
+    # param_grid = {
+    #     'classifier__C' : [0.01, 0.1, 1, 10, 100],
+    #     'classifier__penalty' : ['l1','l2'],
+    # }
+
     
-    word_transformer = TfidfVectorizer(analyzer='char', ngram_range=(2,4))
+    word_transformer = TfidfVectorizer(analyzer='char', ngram_range=(1,4), lowercase=False)
     comma_tokenizer = lambda s: [t.strip() for t in s.split(',')]
     tag_transformer = CountVectorizer(tokenizer=comma_tokenizer, token_pattern=None, binary=True)
     numerical_transformer = Pipeline(steps=[('scaler', StandardScaler())])
@@ -257,6 +265,18 @@ def main():
         ('preprocessor', preprocessor),
         ('classifier', LogisticRegression(class_weight='balanced',solver='saga', max_iter=2**15-1))
     ])
+    # grid_s = GridSearchCV(
+    #     estimator=model,
+    #     param_grid=param_grid,
+    #     cv=10,
+    #     scoring='accuracy',
+    #     n_jobs=-1
+    # )
+
+    # #train gridsearchcv
+    # grid_s.fit(X_train, y_train)
+    # print("Best Parameters for F1 score:", grid_s.best_params_)
+    # print("Best F1 Score:", grid_s.best_score_)
     
     # Train model
     model.fit(X_train, y_train)
@@ -282,8 +302,8 @@ def main():
     # Custom prediction
     #prompt = ['oo', 'nga', 'naman', '\'no', '...', 'makikita', 'mo', 'doon', 'soon', ',', 'pero', 'for', 'now', 'chill', 'ka', 'muna']
     #expectations = ['FIL', 'FIL', 'FIL', 'FIL', 'OTH', 'FIL', 'FIL', 'FIL', 'ENG', 'OTH', 'FIL', 'ENG', 'ENG', 'ENG', 'FIL', 'FIL']
-    prompt = ['you\'re', 'a', 'pain']
-    expectations = ['ENG', 'ENG', 'ENG']
+    prompt = ['Jensel']
+    expectations = ['OTH']
     custom_model_test(model, prompt, expectations)
 
 # Data cleaning: Removing irrelevant columns for feature matrix
